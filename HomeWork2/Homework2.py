@@ -2,7 +2,7 @@ import MySQLdb
 import hashlib
 
 #login into the db
-db = MySQLdb.connect("localhost", "root", "102030", "enterprise.db")
+db = MySQLdb.connect("localhost", "root", "", "enterprise_db")
 cursor = db.cursor()
 
 #choose to log or create a new seller
@@ -128,13 +128,18 @@ elif log_in == 2:
                     state_profile = raw_input("Seller's state: ")
                     country_profile = raw_input("Seller's country: ")
 
-                    sqlSearchUser = "SELECT * FROM seller_profile sp, seller s WHERE sp.profile_id = s.id"
-                    sqlInsert = "INSERT INTO seller_profile (name, email, adress, state, country, date_time) VALUES('{}','{}','{}','{}','{}' , now())".format(name_profile, email_profile, adress_profile, state_profile, country_profile)
-
+                    sqlSearchUser = "SELECT id FROM seller ORDER BY id DESC limit 1"
 
                     try:
                         cursor.execute(sqlSearchUser)
                         results = cursor.fetchall()
+
+                        seller_id = results[0][0]
+
+                        sqlInsert = "INSERT INTO seller_profile (name, email, adress, state, country, date_time) VALUES('{}','{}','{}','{}','{}' , now(), {})".format(
+                            name_profile, email_profile, adress_profile, state_profile, country_profile, seller_id)
+
+
                         cursor.execute(sqlInsert)
                         db.commit()
                         print "profile created!"
